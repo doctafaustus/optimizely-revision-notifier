@@ -1,25 +1,40 @@
 // This script runs in the visited page that's open in Chrome
-console.log('content.js');
+var onOptimizely = /https:\/\/app.optimizely.com\/v2\/projects\//.test(window.location.href);
+var onOptimizelyX = /app.optimizely.com\/edit/.test(window.location.href);
 
-//if (/https:\/\/app.optimizely.com\/v2\/projects\//.test(window.location.href)) {
-$(document).ready(function() {
-	console.log('DOM ready, yo!');
+if (onOptimizely || onOptimizelyX) {
+	$(document).ready(function() {
+		console.log('[Opt Rev Notif] Ready');
 
-	// Get snippet ID so we can make the proper request
-	window.snippetID = window.location.pathname.match(/projects\/(\d+)\//)[1];
-	
-	// On publish click, check for revisions
-	$('body').on('mousedown', '#dialog-manager button[type="submit"]', function() {
-		console.log('CHECKING FOR UPDATES!!!!');
-		getInitialRevision();
+		// Get snippet ID so we can make the proper request
+		//window.snippetID = window.location.pathname.match(/projects\/(\d+)\//)[1];
+
+		if (onOptimizely) {
+			window.snippetID = $('script:contains("window.optlyConfig"):first').text().match(/, "id": (\d+)/)[1];
+		} else {
+			window.snippetID = window.location.pathname.match(/projects\/(\d+)/)[1];
+		}
+
+
+		
+		// On publish click, check for revisions
+		$('body').on('mousedown', '#dialog-manager button[type="submit"], #js-save-button-text', function() {
+			console.log('[Opt Rev Notif] Checking for updates...');
+			getInitialRevision();
+		});
+
+
 	});
-
-
-});
-//}
+}
 
 // Get the initial revision number first so we know what number to checkout against
 function getInitialRevision() {
+
+	// Clear badge first
+	chrome.runtime.sendMessage({ clearBadge: 'true' }, function(response) {
+	  console.log(response);
+	});
+
 	$.ajax({
 		type: 'HEAD',
 		url: 'https://cdn.optimizely.com/js/' + window.snippetID + '.js',
@@ -28,12 +43,11 @@ function getInitialRevision() {
 			checkForUpdates();
 		}
 	});
-
 }
 
 // Keep checking the revision number in the snippet response header until it's different than the revision we currently have
 function checkForUpdates() {
-	console.log('Checking against', window.revision);
+	console.log('[Opt Rev Notif] Checking against', window.revision);
 
 	$.ajax({
 		type: 'HEAD',
@@ -45,7 +59,7 @@ function checkForUpdates() {
 				setTimeout(checkForUpdates, 2500);
 			} else {
 				window.revision = fetchedRevision;
-				console.log('NEW REVISION FOUND', window.revision);
+				console.log('[Opt Rev Notif] New revision found:', window.revision);
 				chrome.runtime.sendMessage({ revision: window.revision }, function(response) {
 				  console.log(response);
 				});

@@ -1,6 +1,6 @@
 // This script runs in the visited page that's open in Chrome
-var onOptimizely = /https:\/\/app.optimizely.com\/v2\/projects\//.test(window.location.href);
-var onOptimizelyX = /app.optimizely.com\/edit/.test(window.location.href);
+var onOptimizely = /app.optimizely.com\/edit/.test(window.location.href);
+var onOptimizelyX = /https:\/\/app.optimizely.com\/v2\/projects\//.test(window.location.href);
 
 if (onOptimizely || onOptimizelyX) {
 	$(document).ready(function() {
@@ -38,6 +38,7 @@ function getInitialRevision() {
 	$.ajax({
 		type: 'HEAD',
 		url: 'https://cdn.optimizely.com/js/' + window.snippetID + '.js',
+		cache: false,
 		success: function(data, textStatus, request) {
 			window.revision = request.getResponseHeader('x-amz-meta-revision');
 			checkForUpdates();
@@ -52,6 +53,7 @@ function checkForUpdates() {
 	$.ajax({
 		type: 'HEAD',
 		url: 'https://cdn.optimizely.com/js/' + window.snippetID + '.js',
+		cache: false,
 		success: function(data, textStatus, request) {
 			var fetchedRevision = request.getResponseHeader('x-amz-meta-revision');
 

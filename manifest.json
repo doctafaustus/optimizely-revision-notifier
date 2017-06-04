@@ -3,7 +3,7 @@
 
   "name": "Optimizely Revision Notifier",
   "description": "This extension will notify you when an Optimizely snippet's revision number has changed after an update.",
-  "version": "0.0.0.3",
+  "version": "0.0.0.5",
 
   "icons": { 
     "16": "icon.png",

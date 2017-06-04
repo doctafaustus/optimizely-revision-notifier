@@ -10,7 +10,7 @@ if (onOptimizely || onOptimizelyX) {
 		//window.snippetID = window.location.pathname.match(/projects\/(\d+)\//)[1];
 
 		if (onOptimizely) {
-			window.snippetID = $('script:contains("window.optlyConfig"):first').text().match(/, "id": (\d+)/)[1];
+			window.snippetID = $('#dashboard-link a:first').attr('href').match(/projects\/(\d+)/)[1];
 		} else {
 			window.snippetID = window.location.pathname.match(/projects\/(\d+)/)[1];
 		}
